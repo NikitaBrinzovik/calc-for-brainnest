@@ -16,6 +16,4 @@ export const CONSTANTS = Object.freeze({
 export const KEYS = Object.freeze({
     Enter: 'Enter',
     Backspace: 'Backspace',
-    Operators: '/^[\\+\\-\\*\\/]$/',
-    Digits: '/^[0-9]$/',
 })

@@ -153,15 +153,14 @@ clearAll.addEventListener('click', () => {
 
 document.addEventListener('keydown', (event) => {
     const key = event.key;
-    if (KEYS.Digits.test(key)) {
+    if (/^[0-9]$/.test(key)) {
         inputDigit(key);
         updateDisplay();
     } else if (key === '.') {
         inputDecimal(key);
         updateDisplay();
-    } else if (KEYS.Operators.test(key)) {
-        console.log(key)
-        updateActionDisplay({value:key})
+    } else if (/^[+\-*/]$/.test(key)) {
+        updateActionDisplay(key)
         handleOperator(key);
         updateDisplay();
     } else if (key === KEYS.Enter) {
