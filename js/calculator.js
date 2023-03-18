@@ -30,7 +30,7 @@ function inputDigit(digit) {
     if (waitingForSecondOperand === true) {
         displayValue = digit;
         waitingForSecondOperand = false;
-    } else {
+    } else if (displayValue.length < 16){
         displayValue = displayValue === CONSTANTS.stringZero ? digit : displayValue + digit;
     }
 }
