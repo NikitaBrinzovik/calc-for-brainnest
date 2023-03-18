@@ -1,37 +1,37 @@
-let displayValue = '0';
+import { CONSTANTS, ERRORS, KEYS, OPERATORS } from "./consts/CONSTANTS.js";
+
+let displayValue = CONSTANTS.stringZero;
 let firstOperand = null;
 let operator = null;
 let waitingForSecondOperand = false;
 
-const mainDisplay = document.querySelector('.display');
-const actionDisplay = document.querySelector('.action-display');
-const digits = document.querySelectorAll('.digit');
-const decimal = document.querySelector('.decimal');
-const clear = document.querySelector('.clear');
-const operators = document.querySelectorAll('.operator');
-const equals = document.querySelector('.equals');
-const backspace = document.querySelector('.backspace');
-const clearAll = document.querySelector('.clear');
+const mainDisplay = document.querySelector(".display");
+const actionDisplay = document.querySelector(".action-display");
+const digits = document.querySelectorAll(".digit");
+const decimal = document.querySelector(".decimal");
+const clear = document.querySelector(".clear");
+const operators = document.querySelectorAll(".operator");
+const equals = document.querySelector(".equals");
+const backspace = document.querySelector(".backspace");
+const clearAll = document.querySelector(".clear");
 
 function updateDisplay() {
     mainDisplay.value = displayValue ?? 0;
     mainDisplay["innerHTML"] = displayValue ?? 0;
 }
 
-function updateActionDisplay(operator) {
-    actionDisplay["innerText"] = operator?.value ?? 'go-go';
-}
+const updateActionDisplay = (operator) => {
+    actionDisplay["innerText"] = operator?.value ?? "";
+};
 
 updateDisplay();
 
 function inputDigit(digit) {
-    // updateActionDisplay('')
-    console.log(digit)
     if (waitingForSecondOperand === true) {
         displayValue = digit;
         waitingForSecondOperand = false;
     } else {
-        displayValue = displayValue === '0' ? digit : displayValue + digit;
+        displayValue = displayValue === CONSTANTS.stringZero ? digit : displayValue + digit;
     }
 }
 
@@ -42,7 +42,7 @@ function inputDecimal(dot) {
 }
 
 function clearDisplay() {
-    displayValue = '0';
+    displayValue = CONSTANTS.stringZero;
     firstOperand = null;
     operator = null;
     waitingForSecondOperand = false;
@@ -51,36 +51,38 @@ function clearDisplay() {
 
 function handleOperator(nextOperator) {
     const inputValue = parseFloat(displayValue);
-    console.log('vvv', inputValue)
+    let result;
+
     if (operator && waitingForSecondOperand) {
         operator = nextOperator;
+        updateActionDisplay(operator);
         return;
     }
 
     if (firstOperand == null) {
         firstOperand = inputValue;
     } else if (operator) {
-        /** */
-        const result = operate(operator, firstOperand, inputValue);
+        result = operate(operator, firstOperand, inputValue);
         displayValue = String(result);
         firstOperand = result;
     }
 
     waitingForSecondOperand = true;
     operator = nextOperator;
+    updateActionDisplay(operator);
 }
 
 function operate(operator, num1, num2) {
     switch (operator) {
-        case '+':
+        case OPERATORS.Plus:
             return num1 + num2;
-        case '-':
+        case OPERATORS.Minus:
             return num1 - num2;
-        case '*':
+        case OPERATORS.Multiply:
             return num1 * num2;
-        case '/':
+        case OPERATORS.Divide:
             if (num2 === 0) {
-                return 'Error: Divide by 0';
+                return ERRORS.DivideByZero;
             }
             return num1 / num2;
         default:
@@ -90,7 +92,6 @@ function operate(operator, num1, num2) {
 
 digits.forEach((digit) => {
     digit.addEventListener('click', (event) => {
-        console.log(digit)
         inputDigit(event.target.value);
         updateDisplay();
     });
@@ -114,16 +115,20 @@ clear.addEventListener('click', () => {
 });
 
 const count = () => {
+    let result;
     updateActionDisplay('')
-    const inputValue = parseFloat(displayValue);
-    console.log('COUNT', operator, firstOperand, inputValue)
+
     if (operator && !waitingForSecondOperand) {
-        const result = operate(operator, firstOperand, inputValue);
+        result = operate(operator, firstOperand, parseFloat(displayValue));
         displayValue = String(result);
         updateDisplay();
         firstOperand = result;
         operator = null;
     }
+
+    displayValue = CONSTANTS.stringZero;
+    firstOperand = null;
+    operator = null;
 
     waitingForSecondOperand = true;
 }
@@ -148,20 +153,20 @@ clearAll.addEventListener('click', () => {
 
 document.addEventListener('keydown', (event) => {
     const key = event.key;
-    if (/^[0-9]$/.test(key)) {
+    if (KEYS.Digits.test(key)) {
         inputDigit(key);
         updateDisplay();
     } else if (key === '.') {
         inputDecimal(key);
         updateDisplay();
-    } else if (/^[\+\-\*\/]$/.test(key)) {
+    } else if (KEYS.Operators.test(key)) {
         console.log(key)
         updateActionDisplay({value:key})
         handleOperator(key);
         updateDisplay();
-    } else if (key === 'Enter') {
+    } else if (key === KEYS.Enter) {
         count()
-    } else if (key === 'Backspace') {
+    } else if (key === KEYS.Backspace) {
         callBackspace()
     }
 });
